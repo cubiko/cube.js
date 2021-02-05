@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export interface CancelablePromise<T> extends Promise<T> {
   cancel: (waitExecution?: boolean) => Promise<any>;
 }
@@ -232,3 +234,77 @@ export const retryWithTimeout = <T>(
     }),
     timeout
   );
+
+export type PromiseDebounceOptions<Arguments> = {
+  extractKey: (...args: Arguments[]) => string,
+};
+
+export const promiseDebounce = async <ReturnType, Arguments>(
+  fn: (...args: Arguments[]) => Promise<ReturnType>,
+  options: PromiseDebounceOptions<Arguments> = {
+    extractKey(...args) {
+      return crypto.createHash('md5').update(JSON.stringify(args)).digest('hex');
+    }
+  },
+) => {
+  const cache = new Map<string, Promise<ReturnType>>();
+
+  return async (...args: Arguments[]) => {
+    const key = options.extractKey(...args);
+
+    {
+      const promise = cache.get(key);
+      if (promise) {
+        return promise;
+      }
+    }
+
+    try {
+      const promise = fn(...args);
+
+      cache.set(key, promise);
+
+      return await promise;
+    } finally {
+      cache.delete(key);
+    }
+  };
+};
+
+export type MemoizeOptions<ReturnType, Arguments> = {
+  extractKey: (...args: Arguments[]) => string,
+  extractCacheLifetime: (result: ReturnType) => number,
+};
+
+type MemoizeBucket<T> = {
+  item: T,
+  lifetime: number,
+};
+
+export const asyncMemoize = <ReturnType, Arguments>(
+  fn: (...args: Arguments[]) => Promise<ReturnType>,
+  options: MemoizeOptions<ReturnType, Arguments>
+) => {
+  const cache = new Map<string, MemoizeBucket<ReturnType>>();
+
+  return async (...args: Arguments[]) => {
+    const key = options.extractKey(...args);
+
+    if (cache.has(key)) {
+      const bucket = <MemoizeBucket<ReturnType>>cache.get(key);
+      if (bucket.lifetime <= Date.now()) {
+        return bucket.item;
+      } else {
+        cache.delete(key);
+      }
+    }
+
+    const item = await fn(...args);
+    cache.set(key, {
+      lifetime: Date.now() + options.extractCacheLifetime(item),
+      item,
+    });
+
+    return item;
+  };
+};

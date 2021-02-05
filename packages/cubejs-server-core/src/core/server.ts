@@ -330,6 +330,11 @@ export class CubejsServerCore {
         : prodLogger(process.env.CUBEJS_LOG_LEVEL),
       scheduledRefreshTimer: getEnv('scheduledRefresh') !== undefined ? getEnv('scheduledRefresh') : getEnv('refreshTimer'),
       ...opts,
+      auth: {
+        algorithms: getEnv('authJwtAlgorithms'),
+        jwkUrl: getEnv('authJwkUrl'),
+        ...opts.auth,
+      }
     };
 
     if (opts.contextToAppId && !opts.scheduledRefreshContexts) {
@@ -430,6 +435,7 @@ export class CubejsServerCore {
           checkAuth: this.options.checkAuth,
           queryTransformer: this.options.queryTransformer,
           extendContext: this.options.extendContext,
+          auth: this.options.auth,
           refreshScheduler: () => new RefreshScheduler(this),
         }
       );

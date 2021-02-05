@@ -76,6 +76,15 @@ export interface Request extends ExpressRequest {
   securityContext?: any,
 }
 
+export interface AuthOptions {
+  jwkRetry?: number,
+  jwkUrl?: ((payload: any) => string) | string,
+  algorithms?: string[],
+  issuer?: string[],
+  audience?: string,
+  subject?: string,
+}
+
 export type QueryTransformerFn = (query: Query, context: RequestContext) => Promise<Query>;
 
 // @deprecated

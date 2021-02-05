@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { Algorithm as JWTAlgorithm } from 'jsonwebtoken';
 import R from 'ramda';
 import moment from 'moment';
 import bodyParser from 'body-parser';
@@ -26,8 +26,10 @@ import {
   RequestLoggerMiddlewareFn,
   Request,
   ExtendedRequestContext,
+  AuthOptions,
 } from './interfaces';
 import { cachedHandler } from './cached-handler';
+import { fetchJWKS } from './jwk';
 
 type ResponseResultFn = (message: object, extra?: { status: number }) => void;
 
@@ -160,6 +162,7 @@ export interface ApiGatewayOptions {
   checkAuth?: CheckAuthFn;
   // @deprecated Please use checkAuth
   checkAuthMiddleware?: CheckAuthMiddlewareFn;
+  auth?: AuthOptions;
   requestLoggerMiddleware?: RequestLoggerMiddlewareFn;
   queryTransformer?: QueryTransformerFn;
   subscriptionStore?: any;
@@ -208,7 +211,9 @@ export class ApiGateway {
     this.subscriptionStore = options.subscriptionStore || new LocalSubscriptionStore();
     this.enforceSecurityChecks = options.enforceSecurityChecks || (process.env.NODE_ENV === 'production');
     this.extendContext = options.extendContext;
-    this.checkAuthFn = options.checkAuth ? this.wrapCheckAuth(options.checkAuth) : this.defaultCheckAuth.bind(this);
+    this.checkAuthFn = options.checkAuth
+      ? this.wrapCheckAuth(options.checkAuth)
+      : this.createDefaultCheckAuth(options.auth);
     this.checkAuthMiddleware = options.checkAuthMiddleware
       ? this.wrapCheckAuthMiddleware(options.checkAuthMiddleware)
       : this.checkAuth.bind(this);
@@ -732,7 +737,6 @@ export class ApiGateway {
       )
     });
 
-    // securityContext should be object
     let showWarningAboutNotObject = false;
 
     return (req, res, next) => {
@@ -798,25 +802,62 @@ export class ApiGateway {
     };
   }
 
-  protected async defaultCheckAuth(req: Request, auth?: string) {
-    if (auth) {
-      const secret = this.apiSecret;
-      try {
-        req.securityContext = jwt.verify(auth, secret);
-      } catch (e) {
-        if (this.enforceSecurityChecks) {
-          throw new UserError('Invalid token');
-        } else {
-          this.log({
-            type: 'Invalid Token',
-            token: auth,
-            error: e.stack || e.toString()
-          }, <any>req);
+  protected createDefaultCheckAuth(options?: AuthOptions): CheckAuthFn {
+    type VerifyTokenFn = (auth: string, secret: string) => Promise<object|string>|object|string;
+
+    const verifyToken = (auth, secret) => jwt.verify(auth, secret, {
+      algorithms: <JWTAlgorithm[]|undefined>options?.algorithms,
+      issuer: options?.issuer,
+      audience: options?.audience,
+      subject: options?.subject,
+    });
+
+    let checkAuthFn: VerifyTokenFn = verifyToken;
+
+    if (options && options.jwkUrl) {
+      checkAuthFn = async (auth) => {
+        const decoded = <Record<string, any>|null>jwt.decode(auth, { complete: true });
+        if (!decoded) {
+          throw new UserError('Unable to decode JWT key');
         }
-      }
-    } else if (this.enforceSecurityChecks) {
-      throw new UserError('Authorization header isn\'t set');
+
+        if (!decoded.header || !decoded.header.kid) {
+          throw new UserError('JWT without kid inside headers');
+        }
+
+        const jwkUrl = typeof options.jwkUrl === 'function' ? options.jwkUrl(decoded) : <string>options.jwkUrl;
+
+        const jwks = await fetchJWKS(jwkUrl);
+
+        if (!jwks.has(decoded.header.kid)) {
+          throw new UserError(
+            `Unable to verify, JWK with kid: "${decoded.header.kid}" not found`,
+          );
+        }
+
+        return verifyToken(auth, jwks.get(decoded.header.kid));
+      };
     }
+
+    return async (req, auth) => {
+      if (auth) {
+        try {
+          req.securityContext = await checkAuthFn(auth, this.apiSecret);
+        } catch (e) {
+          if (this.enforceSecurityChecks) {
+            throw new UserError('Invalid token');
+          } else {
+            this.log({
+              type: e.message,
+              token: auth,
+              error: e.stack || e.toString()
+            }, <any>req);
+          }
+        }
+      } else if (this.enforceSecurityChecks) {
+        throw new UserError('Authorization header isn\'t set');
+      }
+    };
   }
 
   protected extractAuthorizationHeaderWithSchema(req: Request) {

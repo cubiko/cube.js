@@ -83,12 +83,15 @@ export interface AuthOptions {
   issuer?: string[],
   audience?: string,
   subject?: string,
+  claimsNamespace?: string,
 }
 
 export type QueryTransformerFn = (query: Query, context: RequestContext) => Promise<Query>;
 
 // @deprecated
 export type CheckAuthMiddlewareFn = (req: Request, res: ExpressResponse, next: ExpressNextFunction) => void;
+
+export type SecurityContextExtractorFn = (ctx: Readonly<RequestContext>) => any;
 
 // @deprecated
 export type RequestLoggerMiddlewareFn = (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) => void;

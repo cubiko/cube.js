@@ -26,7 +26,7 @@ import {
   RequestLoggerMiddlewareFn,
   Request,
   ExtendedRequestContext,
-  AuthOptions,
+  AuthOptions, SecurityContextExtractorFn,
 } from './interfaces';
 import { cachedHandler } from './cached-handler';
 import { fetchJWKS } from './jwk';
@@ -192,8 +192,7 @@ export class ApiGateway {
 
   protected readonly requestLoggerMiddleware: RequestLoggerMiddlewareFn;
 
-  // Flag to show deprecation for u, only once
-  protected checkAuthDeprecationShown: boolean = false;
+  protected readonly securityContextExtractor: SecurityContextExtractorFn;
 
   public constructor(
     protected readonly apiSecret: string,
@@ -217,6 +216,7 @@ export class ApiGateway {
     this.checkAuthMiddleware = options.checkAuthMiddleware
       ? this.wrapCheckAuthMiddleware(options.checkAuthMiddleware)
       : this.checkAuth.bind(this);
+    this.securityContextExtractor = this.createSecurityContextExtractor(options.auth);
     this.requestLoggerMiddleware = options.requestLoggerMiddleware || this.requestLogger.bind(this);
   }
 
@@ -408,38 +408,58 @@ export class ApiGateway {
     }
   }
 
-  protected coerceForSqlQuery(query, context: Readonly<RequestContext>) {
-    let securityContext: any = {};
-
-    if (typeof context.securityContext === 'object' && context.securityContext !== null) {
-      if (context.securityContext.u) {
-        if (!this.checkAuthDeprecationShown) {
-          this.logger('JWT U Property Deprecation', {
-            warning: (
-              'Storing security context in the u property within the payload is now deprecated, please migrate: ' +
-              'https://github.com/cube-js/cube.js/blob/master/DEPRECATION.md#authinfo'
-            )
-          });
-
-          this.checkAuthDeprecationShown = true;
+  protected createSecurityContextExtractor(options?: AuthOptions): SecurityContextExtractorFn {
+    if (options?.claimsNamespace) {
+      return (ctx: Readonly<RequestContext>) => {
+        if (typeof ctx.securityContext === 'object' && ctx.securityContext !== null) {
+          if (<string>options.claimsNamespace in ctx.securityContext) {
+            return options.claimsNamespace;
+          }
         }
 
-        securityContext = {
-          ...context.securityContext,
-          ...context.securityContext.u,
-        };
-
-        delete securityContext.u;
-      } else {
-        securityContext = context.securityContext;
-      }
+        return {};
+      };
     }
 
+    let checkAuthDeprecationShown: boolean = false;
+
+    return (ctx: Readonly<RequestContext>) => {
+      let securityContext: any = {};
+
+      if (typeof ctx.securityContext === 'object' && ctx.securityContext !== null) {
+        if (ctx.securityContext.u) {
+          if (!checkAuthDeprecationShown) {
+            this.logger('JWT U Property Deprecation', {
+              warning: (
+                'Storing security context in the u property within the payload is now deprecated, please migrate: ' +
+                'https://github.com/cube-js/cube.js/blob/master/DEPRECATION.md#authinfo'
+              )
+            });
+
+            checkAuthDeprecationShown = true;
+          }
+
+          securityContext = {
+            ...ctx.securityContext,
+            ...ctx.securityContext.u,
+          };
+
+          delete securityContext.u;
+        } else {
+          securityContext = ctx.securityContext;
+        }
+      }
+
+      return securityContext;
+    };
+  }
+
+  protected coerceForSqlQuery(query, context: Readonly<RequestContext>) {
     return {
       ...query,
       timeDimensions: query.timeDimensions || [],
       contextSymbols: {
-        securityContext,
+        securityContext: this.securityContextExtractor(context),
       },
       requestId: context.requestId
     };

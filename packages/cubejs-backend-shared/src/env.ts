@@ -132,7 +132,7 @@ const variables = {
     .asString(),
   redisTls: () => get('REDIS_TLS')
     .default('false')
-    .asBoolStrict()
+    .asBoolStrict(),
   authJwkUrl: () => get('CUBEJS_JWK_URL')
     .asUrlString(),
   authJwtAlgorithms: () => get('CUBEJS_JWT_ALG')

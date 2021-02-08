@@ -99,6 +99,13 @@ CUBEJS_DB_SSL_CERT=/ssl/cert.pem
 CUBEJS_DB_SSL_KEY=/ssl/key.pem
 ```
 
+You can also set the above environment variables to the contents of the
+PEM certificates; for example:
+
+```dotenv
+CUBEJS_DB_SSL_CERT = "-----BEGIN CERTIFICATE-----....."
+```
+
 For a complete list of SSL-related environment variables, consult the [Database
 Connections section of the Environment Variables Reference][link-env-var-ref].
 

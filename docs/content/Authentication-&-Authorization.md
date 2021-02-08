@@ -270,3 +270,46 @@ module.exports = {
   },
 };
 ```
+
+## Auth0
+
+This documentation is based on example/auth
+
+1. Click on the APIs menu option on the left sidebar and then click the + Create API button.
+
+### Custom Token Claims
+
+By default, there are no claims inside payload, but it's possible to do by creating custom rule.
+
+```js
+function addClaimToAccessToken(user, context, callback) {
+  // Auth requires that namespace should be an url, for example you can take an url of your audience.
+  var namespace = 'http://localhost:4000/';
+
+  context.accessToken[namespace] = {
+    email: user.email,
+    clientId: user.clientId,
+  };
+
+  return callback(null, user, context);
+}
+```
+
+Next you should define, claimsNamespace inside auth options:
+
+```js
+auth: {
+  claimsNamespace: 'http://localhost:4000/'
+}
+```
+
+## Cognito
+
+### Custom Token Claims
+
+By default, there are no claims inside `accessToken`'s token payload, but it's possible to be done by lamda on top of
+Pre-Token Generation trigger.
+
+```js
+
+```

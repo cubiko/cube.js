@@ -41,8 +41,10 @@ export class RedisPool {
       min,
       max,
       acquireTimeoutMillis: 5000,
-      idleTimeoutMillis: 5000,
-      evictionRunIntervalMillis: 5000
+      evictionRunIntervalMillis: 1500,
+      numTestsPerEvictionRun: 20,
+      softIdleTimeoutMillis: 5000,
+      idleTimeoutMillis: 30000,
     };
 
     const create = options.createClient || (async () => createRedisClient(getEnv('redisUrl')));

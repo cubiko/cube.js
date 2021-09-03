@@ -496,9 +496,24 @@
         "signature": "308658a48d69eb476e8b3953cd5659c16a7654826442e4ae322f2bcd9a89fe50",
         "affectsGlobalScope": false
       },
+      "../node_modules/moment/ts3.1-typings/moment.d.ts": {
+        "version": "f97edc4d3b4dd0b32766e9633086497565c37657fb591cc84a35864db4bc2fc5",
+        "signature": "f97edc4d3b4dd0b32766e9633086497565c37657fb591cc84a35864db4bc2fc5",
+        "affectsGlobalScope": false
+      },
+      "../node_modules/moment-range/dist/moment-range.d.ts": {
+        "version": "793ffe38009341aa72a64d21d55891d0d6b5d5dbd87ac05af6fbdb2d2b8d9d52",
+        "signature": "793ffe38009341aa72a64d21d55891d0d6b5d5dbd87ac05af6fbdb2d2b8d9d52",
+        "affectsGlobalScope": false
+      },
+      "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts": {
+        "version": "b998ebc6068012c147958ab65d194bfe878859861755b3b47d8f26f5f735e5b7",
+        "signature": "b998ebc6068012c147958ab65d194bfe878859861755b3b47d8f26f5f735e5b7",
+        "affectsGlobalScope": false
+      },
       "../node_modules/@cubejs-backend/shared/dist/src/index.d.ts": {
-        "version": "89d422c20d911e817c61d1e268772fffb76f5a05ebfd494c43d07f91cf72f2e4",
-        "signature": "89d422c20d911e817c61d1e268772fffb76f5a05ebfd494c43d07f91cf72f2e4",
+        "version": "6c7b3ebfa372fa7c4341c5abac92a0889b617f9206fb489ed0ef33681fe81f18",
+        "signature": "6c7b3ebfa372fa7c4341c5abac92a0889b617f9206fb489ed0ef33681fe81f18",
         "affectsGlobalScope": false
       },
       "../src/driver/utils.ts": {
@@ -582,7 +597,7 @@
         "affectsGlobalScope": false
       },
       "../src/orchestrator/redispool.ts": {
-        "version": "0982be55254490226cb5451b46ec3ebd77c97f831f37d88720383bfbb92aa0d2",
+        "version": "355fbf60242d209ab78ad397ad2b9877335618909eb803acbf3edfba65c5bfd2",
         "signature": "03b49060d2b383b7c1ef38e4cc68d61cd34552b1563098bf8d661b58f022ccef",
         "affectsGlobalScope": false
       },
@@ -925,6 +940,7 @@
         "../node_modules/@cubejs-backend/shared/dist/src/package.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/promises.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/proxy.d.ts",
+        "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/track.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/type-helpers.d.ts"
       ],
@@ -933,6 +949,9 @@
       ],
       "../node_modules/@cubejs-backend/shared/dist/src/proxy.d.ts": [
         "../node_modules/http-proxy-agent/dist/agent.d.ts"
+      ],
+      "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts": [
+        "../node_modules/moment-range/dist/moment-range.d.ts"
       ],
       "../node_modules/@types/babel__core/index.d.ts": [
         "../node_modules/@babel/parser/typings/babel-parser.d.ts",
@@ -1170,6 +1189,9 @@
       "../node_modules/jest-diff/build/printdiffs.d.ts": [
         "../node_modules/jest-diff/build/cleanupsemantic.d.ts",
         "../node_modules/jest-diff/build/types.d.ts"
+      ],
+      "../node_modules/moment-range/dist/moment-range.d.ts": [
+        "../node_modules/moment/ts3.1-typings/moment.d.ts"
       ],
       "../node_modules/pretty-format/build/index.d.ts": [
         "../node_modules/pretty-format/build/types.d.ts"
@@ -1376,6 +1398,7 @@
         "../node_modules/@cubejs-backend/shared/dist/src/package.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/promises.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/proxy.d.ts",
+        "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/track.d.ts",
         "../node_modules/@cubejs-backend/shared/dist/src/type-helpers.d.ts"
       ],
@@ -1384,6 +1407,9 @@
       ],
       "../node_modules/@cubejs-backend/shared/dist/src/proxy.d.ts": [
         "../node_modules/http-proxy-agent/dist/agent.d.ts"
+      ],
+      "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts": [
+        "../node_modules/moment-range/dist/moment-range.d.ts"
       ],
       "../node_modules/@types/babel__core/index.d.ts": [
         "../node_modules/@babel/parser/typings/babel-parser.d.ts",
@@ -1622,6 +1648,9 @@
         "../node_modules/jest-diff/build/cleanupsemantic.d.ts",
         "../node_modules/jest-diff/build/types.d.ts"
       ],
+      "../node_modules/moment-range/dist/moment-range.d.ts": [
+        "../node_modules/moment/ts3.1-typings/moment.d.ts"
+      ],
       "../node_modules/pretty-format/build/index.d.ts": [
         "../node_modules/pretty-format/build/types.d.ts"
       ],
@@ -1731,6 +1760,7 @@
       "../node_modules/@cubejs-backend/shared/dist/src/package.d.ts",
       "../node_modules/@cubejs-backend/shared/dist/src/promises.d.ts",
       "../node_modules/@cubejs-backend/shared/dist/src/proxy.d.ts",
+      "../node_modules/@cubejs-backend/shared/dist/src/time.d.ts",
       "../node_modules/@cubejs-backend/shared/dist/src/track.d.ts",
       "../node_modules/@cubejs-backend/shared/dist/src/type-helpers.d.ts",
       "../node_modules/@types/babel__core/index.d.ts",
@@ -1806,6 +1836,8 @@
       "../node_modules/jest-diff/build/index.d.ts",
       "../node_modules/jest-diff/build/printdiffs.d.ts",
       "../node_modules/jest-diff/build/types.d.ts",
+      "../node_modules/moment-range/dist/moment-range.d.ts",
+      "../node_modules/moment/ts3.1-typings/moment.d.ts",
       "../node_modules/pretty-format/build/index.d.ts",
       "../node_modules/pretty-format/build/types.d.ts",
       "../node_modules/ts-toolbelt/out/index.d.ts",
